@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UVM Testbench for Dual Port RAM - VLSI Verification</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            color: #333;
+            background: #f8f9fa;
+        }
+        .nav-bar {
+            background: #0f3460;
+            padding: 10px 20px;
+            text-align: center;
+        }
+        .nav-bar a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 0.95em;
+        }
+        .nav-bar a:hover {
+            text-decoration: underline;
+        }
+        .nav-bar a.active {
+            font-weight: bold;
+            border-bottom: 2px solid #4fc3f7;
+        }
+        .header-banner {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+        }
+        .header-banner h1 {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        .header-banner .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        .header-banner .meta {
+            margin-top: 20px;
+            font-size: 0.95em;
+            opacity: 0.8;
+        }
+        .view-counter {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #1a1a2e;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 1em;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 1000;
+        }
+        .view-counter span {
+            font-weight: bold;
+            color: #4fc3f7;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #1a1a2e;
+            font-size: 1.8em;
+            margin: 40px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #0f3460;
+        }
+        h3 {
+            color: #16213e;
+            font-size: 1.4em;
+            margin: 30px 0 15px 0;
+        }
+        h4 {
+            color: #333;
+            font-size: 1.1em;
+            margin: 20px 0 10px 0;
+        }
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.85em;
+            line-height: 1.5;
+            margin: 20px 0;
+        }
+        code {
+            font-family: 'Consolas', 'Monaco', monospace;
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        pre code {
+            background: none;
+            padding: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background: #0f3460;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        .toc {
+            background: #e8f4f8;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+        .toc h3 {
+            margin-top: 0;
+            color: #0f3460;
+        }
+        .toc ol {
+            margin-left: 25px;
+        }
+        .toc li {
+            margin: 8px 0;
+        }
+        .toc a {
+            color: #0f3460;
+            text-decoration: none;
+        }
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        .project-card {
+            background: linear-gradient(to right, #f8f9fa, #e8f4f8);
+            border-left: 4px solid #0f3460;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .project-card h3 {
+            margin-top: 0;
+            color: #0f3460;
+        }
+        .interview-box {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+        .interview-box h3 {
+            color: #856404;
+            margin-top: 0;
+        }
+        .uvm-box {
+            background: #d4edda;
+            border: 1px solid #28a745;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .uvm-box h4 {
+            color: #155724;
+            margin-top: 0;
+        }
+        .tags {
+            margin-top: 30px;
+        }
+        .tag {
+            display: inline-block;
+            background: #e8f4f8;
+            color: #0f3460;
+            padding: 5px 12px;
+            border-radius: 20px;
+            margin: 5px;
+            font-size: 0.85em;
+        }
+        .diagram {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.85em;
+            overflow-x: auto;
+            white-space: pre;
+            margin: 20px 0;
+        }
+        .blog-nav {
+            display: flex;
+            justify-content: space-between;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .blog-nav a {
+            color: #0f3460;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .blog-nav a:hover {
+            text-decoration: underline;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9em;
+        }
+        ul, ol {
+            margin-left: 25px;
+            margin-bottom: 15px;
+        }
+        li {
+            margin: 5px 0;
+        }
+        hr {
+            border: none;
+            border-top: 1px solid #ddd;
+            margin: 40px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="nav-bar">
+    <a href="index.html">01: Core RTL</a>
+    <a href="memory-fifo.html">02: Memory & FIFO</a>
+    <a href="communication.html">03: Communication</a>
+    <a href="uvm-testbench.html" class="active">04: UVM</a>
+    <a href="ral.html">05: RAL</a>
+</div>
+
+<div class="header-banner">
+    <h1>UVM Testbench for Dual Port RAM</h1>
+    <p class="subtitle">Complete Verification Environment with Coverage & Assertions</p>
+    <p class="meta"><strong>Praveen Kumar Vagala</strong> | 18 min read</p>
+</div>
+
+<div class="view-counter">
+    <span id="visit-count">1000</span>
+</div>
+
+<div class="container">
+
+    <h2>Introduction</h2>
+    <p>
+        UVM (Universal Verification Methodology) is the industry-standard verification methodology for complex digital designs. This blog demonstrates building a complete UVM testbench for the Dual Port RAM designed in Chapter 02, including sequences, coverage, and assertions.
+    </p>
+
+    <div class="toc">
+        <h3>Table of Contents</h3>
+        <ol>
+            <li><a href="#architecture">UVM Testbench Architecture</a></li>
+            <li><a href="#interface">Interface & Transaction</a></li>
+            <li><a href="#driver">Driver & Monitor</a></li>
+            <li><a href="#agent">Agent & Sequencer</a></li>
+            <li><a href="#scoreboard">Scoreboard & Coverage</a></li>
+            <li><a href="#sequences">Sequences & Tests</a></li>
+            <li><a href="#assertions">SVA Assertions</a></li>
+        </ol>
+    </div>
+
+    <hr>
+
+    <!-- DUT Recap -->
+    <div class="project-card">
+        <h3>DUT: Dual Port RAM (from Chapter 02)</h3>
+        <p><strong>Features:</strong> 32-bit data, 10-bit address, 1024 depth, True Dual-Port</p>
+    </div>
+
+    <pre>module dual_port_ram #(
+    parameter DATA_WIDTH = 32,
+    parameter ADDR_WIDTH = 10,
+    parameter DEPTH      = 1024
+)(
+    // Port A
+    input  wire                    clk_a,
+    input  wire                    en_a,
+    input  wire                    wr_en_a,
+    input  wire [ADDR_WIDTH-1:0]   addr_a,
+    input  wire [DATA_WIDTH-1:0]   wr_data_a,
+    output reg  [DATA_WIDTH-1:0]   rd_data_a,
+    
+    // Port B
+    input  wire                    clk_b,
+    input  wire                    en_b,
+    input  wire                    wr_en_b,
+    input  wire [ADDR_WIDTH-1:0]   addr_b,
+    input  wire [DATA_WIDTH-1:0]   wr_data_b,
+    output reg  [DATA_WIDTH-1:0]   rd_data_b
+);
+    // Memory array
+    reg [DATA_WIDTH-1:0] mem [0:DEPTH-1];
+    
+    // Port A
+    always @(posedge clk_a) begin
+        if (en_a) begin
+            if (wr_en_a) mem[addr_a] <= wr_data_a;
+            rd_data_a <= mem[addr_a];
+        end
+    end
+    
+    // Port B
+    always @(posedge clk_b) begin
+        if (en_b) begin
+            if (wr_en_b) mem[addr_b] <= wr_data_b;
+            rd_data_b <= mem[addr_b];
+        end
+    end
+endmodule</pre>
+
+    <hr>
+
+    <!-- Section 1: Architecture -->
+    <div class="project-card" id="architecture">
+        <h3>1. UVM Testbench Architecture</h3>
+        <p><strong>Key Learning:</strong> Component hierarchy, factory pattern, phasing</p>
+    </div>
+
+    <h4>Block Diagram</h4>
+    <div class="diagram">+------------------------------------------------------------------+
+|                         UVM Test                                 |
++------------------------------------------------------------------+
+|                         UVM Env                                  |
+|  +---------------------------+  +---------------------------+    |
+|  |      Agent Port A         |  |      Agent Port B         |    |
+|  |  +--------+  +--------+   |  |  +--------+  +--------+   |    |
+|  |  |Sequencer|  | Driver |   |  |  |Sequencer|  | Driver |   |    |
+|  |  +--------+  +--------+   |  |  +--------+  +--------+   |    |
+|  |       +--------+          |  |       +--------+          |    |
+|  |       | Monitor|          |  |       | Monitor|          |    |
+|  |       +--------+          |  |       +--------+          |    |
+|  +---------------------------+  +---------------------------+    |
+|                                                                  |
+|  +---------------------------+  +---------------------------+    |
+|  |      Scoreboard           |  |   Coverage Collector      |    |
+|  +---------------------------+  +---------------------------+    |
++------------------------------------------------------------------+
+                              |
+                    +---------v---------+
+                    |   DUT (Dual Port  |
+                    |       RAM)        |
+                    +-------------------+</div>
+
+    <hr>
+
+    <!-- Section 2: Interface -->
+    <div class="project-card" id="interface">
+        <h3>2. Interface & Transaction</h3>
+        <p><strong>Key Learning:</strong> Virtual interface, transaction class, field macros</p>
+    </div>
+
+    <h4>RAM Interface</h4>
+    <pre>interface ram_if #(
+    parameter DATA_WIDTH = 32,
+    parameter ADDR_WIDTH = 10
+)(input logic clk);
+    
+    logic                    en;
+    logic                    wr_en;
+    logic [ADDR_WIDTH-1:0]   addr;
+    logic [DATA_WIDTH-1:0]   wr_data;
+    logic [DATA_WIDTH-1:0]   rd_data;
+    
+    // Clocking blocks for driver and monitor
+    clocking driver_cb @(posedge clk);
+        default input #1 output #1;
+        output en, wr_en, addr, wr_data;
+        input  rd_data;
+    endclocking
+    
+    clocking monitor_cb @(posedge clk);
+        default input #1 output #1;
+        input en, wr_en, addr, wr_data, rd_data;
+    endclocking
+    
+    // Modport definitions
+    modport DRIVER  (clocking driver_cb);
+    modport MONITOR (clocking monitor_cb);
+    modport DUT     (input en, wr_en, addr, wr_data, output rd_data);
+    
+endinterface</pre>
+
+    <h4>Transaction Class</h4>
+    <pre>class ram_transaction extends uvm_sequence_item;
+    
+    // Transaction fields
+    rand bit                    en;
+    rand bit                    wr_en;
+    rand bit [9:0]              addr;
+    rand bit [31:0]             wr_data;
+         bit [31:0]             rd_data;
+    
+    // Port identifier
+    bit port_id;  // 0 = Port A, 1 = Port B
+    
+    // UVM field macros for automation
+    `uvm_object_utils_begin(ram_transaction)
+        `uvm_field_int(en,      UVM_ALL_ON)
+        `uvm_field_int(wr_en,   UVM_ALL_ON)
+        `uvm_field_int(addr,    UVM_ALL_ON)
+        `uvm_field_int(wr_data, UVM_ALL_ON)
+        `uvm_field_int(rd_data, UVM_ALL_ON)
+        `uvm_field_int(port_id, UVM_ALL_ON)
+    `uvm_object_utils_end
+    
+    // Constraints
+    constraint valid_txn {
+        en == 1;  // Always enabled for active transactions
+    }
+    
+    constraint addr_range {
+        addr inside {[0:1023]};
+    }
+    
+    // Constructor
+    function new(string name = "ram_transaction");
+        super.new(name);
+    endfunction
+    
+    // Convert to string for debug
+    function string convert2string();
+        return $sformatf("Port=%0d EN=%0b WR=%0b ADDR=0x%0h WDATA=0x%0h RDATA=0x%0h",
+                         port_id, en, wr_en, addr, wr_data, rd_data);
+    endfunction
+    
+endclass</pre>
+
+    <hr>
+
+    <!-- Section 3: Driver & Monitor -->
+    <div class="project-card" id="driver">
+        <h3>3. Driver & Monitor</h3>
+        <p><strong>Key Learning:</strong> BFM implementation, transaction to signal conversion</p>
+    </div>
+
+    <h4>RAM Driver</h4>
+    <pre>class ram_driver extends uvm_driver #(ram_transaction);
+    `uvm_component_utils(ram_driver)
+    
+    virtual ram_if vif;
+    
+    function new(string name, uvm_component parent);
+        super.new(name, parent);
+    endfunction
+    
+    function void build_phase(uvm_phase phase);
+        super.build_phase(phase);
+        if (!uvm_config_db#(virtual ram_if)::get(this, "", "vif", vif))
+            `uvm_fatal("NOVIF", "Virtual interface not found")
+    endfunction
+    
+    task run_phase(uvm_phase phase);
+        ram_transaction txn;
+        
+        // Initialize signals
+        vif.driver_cb.en      <= 0;
+        vif.driver_cb.wr_en   <= 0;
+        vif.driver_cb.addr    <= 0;
+        vif.driver_cb.wr_data <= 0;
+        
+        forever begin
+            seq_item_port.get_next_item(txn);
+            drive_transaction(txn);
+            seq_item_port.item_done();
+        end
+    endtask
+    
+    task drive_transaction(ram_transaction txn);
+        @(vif.driver_cb);
+        vif.driver_cb.en      <= txn.en;
+        vif.driver_cb.wr_en   <= txn.wr_en;
+        vif.driver_cb.addr    <= txn.addr;
+        vif.driver_cb.wr_data <= txn.wr_data;
+        
+        @(vif.driver_cb);
+        vif.driver_cb.en <= 0;
+        
+        `uvm_info("DRV", $sformatf("Drove: %s", txn.convert2string()), UVM_MEDIUM)
+    endtask
+    
+endclass</pre>
+
+    <h4>RAM Monitor</h4>
+    <pre>class ram_monitor extends uvm_monitor;
+    `uvm_component_utils(ram_monitor)
+    
+    virtual ram_if vif;
+    uvm_analysis_port #(ram_transaction) ap;
+    bit port_id;
+    
+    function new(string name, uvm_component parent);
+        super.new(name, parent);
+        ap = new("ap", this);
+    endfunction
+    
+    function void build_phase(uvm_phase phase);
+        super.build_phase(phase);
+        if (!uvm_config_db#(virtual ram_if)::get(this, "", "vif", vif))
+            `uvm_fatal("NOVIF", "Virtual interface not found")
+    endfunction
+    
+    task run_phase(uvm_phase phase);
+        ram_transaction txn;
+        
+        forever begin
+            @(vif.monitor_cb);
+            
+            if (vif.monitor_cb.en) begin
+                txn = ram_transaction::type_id::create("txn");
+                txn.port_id = port_id;
+                txn.en      = vif.monitor_cb.en;
+                txn.wr_en   = vif.monitor_cb.wr_en;
+                txn.addr    = vif.monitor_cb.addr;
+                txn.wr_data = vif.monitor_cb.wr_data;
+                
+                // Wait one cycle for read data
+                @(vif.monitor_cb);
+                txn.rd_data = vif.monitor_cb.rd_data;
+                
+                ap.write(txn);
+                `uvm_info("MON", $sformatf("Captured: %s", txn.convert2string()), UVM_HIGH)
+            end
+        end
+    endtask
+    
+endclass</pre>
+
+    <hr>
+
+    <!-- Section 4: Agent -->
+    <div class="project-card" id="agent">
+        <h3>4. Agent & Sequencer</h3>
+        <p><strong>Key Learning:</strong> Agent modes (active/passive), component hierarchy</p>
+    </div>
+
+    <pre>class ram_agent extends uvm_agent;
+    `uvm_component_utils(ram_agent)
+    
+    ram_driver    drv;
+    ram_monitor   mon;
+    uvm_sequencer #(ram_transaction) sqr;
+    
+    bit port_id;
+    
+    function new(string name, uvm_component parent);
+        super.new(name, parent);
+    endfunction
+    
+    function void build_phase(uvm_phase phase);
+        super.build_phase(phase);
+        
+        mon = ram_monitor::type_id::create("mon", this);
+        mon.port_id = port_id;
+        
+        if (get_is_active() == UVM_ACTIVE) begin
+            drv = ram_driver::type_id::create("drv", this);
+            sqr = uvm_sequencer#(ram_transaction)::type_id::create("sqr", this);
+        end
+    endfunction
+    
+    function void connect_phase(uvm_phase phase);
+        super.connect_phase(phase);
+        if (get_is_active() == UVM_ACTIVE) begin
+            drv.seq_item_port.connect(sqr.seq_item_export);
+        end
+    endfunction
+    
+endclass</pre>
+
+    <hr>
+
+    <!-- Section 5: Scoreboard & Coverage -->
+    <div class="project-card" id="scoreboard">
+        <h3>5. Scoreboard & Coverage</h3>
+        <p><strong>Key Learning:</strong> Reference model, functional coverage, analysis ports</p>
+    </div>
+
+    <h4>Scoreboard with Reference Model</h4>
+    <pre>class ram_scoreboard extends uvm_scoreboard;
+    `uvm_component_utils(ram_scoreboard)
+    
+    uvm_analysis_imp #(ram_transaction, ram_scoreboard) ap;
+    
+    // Reference memory model
+    bit [31:0] ref_mem [0:1023];
+    
+    int pass_count, fail_count;
+    
+    function new(string name, uvm_component parent);
+        super.new(name, parent);
+        ap = new("ap", this);
+    endfunction
+    
+    function void write(ram_transaction txn);
+        if (txn.wr_en) begin
+            // Write operation - update reference model
+            ref_mem[txn.addr] = txn.wr_data;
+            `uvm_info("SCB", $sformatf("Write: MEM[0x%0h] = 0x%0h", 
+                      txn.addr, txn.wr_data), UVM_MEDIUM)
+        end else begin
+            // Read operation - compare with reference
+            if (txn.rd_data == ref_mem[txn.addr]) begin
+                pass_count++;
+                `uvm_info("SCB", $sformatf("PASS: Addr=0x%0h Expected=0x%0h Got=0x%0h",
+                          txn.addr, ref_mem[txn.addr], txn.rd_data), UVM_MEDIUM)
+            end else begin
+                fail_count++;
+                `uvm_error("SCB", $sformatf("FAIL: Addr=0x%0h Expected=0x%0h Got=0x%0h",
+                           txn.addr, ref_mem[txn.addr], txn.rd_data))
+            end
+        end
+    endfunction
+    
+    function void report_phase(uvm_phase phase);
+        `uvm_info("SCB", $sformatf("Scoreboard Summary: PASS=%0d FAIL=%0d", 
+                  pass_count, fail_count), UVM_LOW)
+    endfunction
+    
+endclass</pre>
+
+    <h4>Functional Coverage</h4>
+    <pre>class ram_coverage extends uvm_subscriber #(ram_transaction);
+    `uvm_component_utils(ram_coverage)
+    
+    ram_transaction txn;
+    
+    // Covergroup
+    covergroup ram_cg;
+        // Address coverage
+        addr_cp: coverpoint txn.addr {
+            bins low_addr   = {[0:255]};
+            bins mid_addr   = {[256:767]};
+            bins high_addr  = {[768:1023]};
+            bins boundaries = {0, 511, 512, 1023};
+        }
+        
+        // Operation type
+        wr_en_cp: coverpoint txn.wr_en {
+            bins read  = {0};
+            bins write = {1};
+        }
+        
+        // Port coverage
+        port_cp: coverpoint txn.port_id {
+            bins port_a = {0};
+            bins port_b = {1};
+        }
+        
+        // Data patterns
+        data_cp: coverpoint txn.wr_data {
+            bins zeros    = {32'h0000_0000};
+            bins ones     = {32'hFFFF_FFFF};
+            bins walking1 = {32'h0000_0001, 32'h0000_0002, 32'h0000_0004};
+            bins random   = default;
+        }
+        
+        // Cross coverage
+        addr_x_op: cross addr_cp, wr_en_cp;
+        port_x_op: cross port_cp, wr_en_cp;
+        
+    endgroup
+    
+    function new(string name, uvm_component parent);
+        super.new(name, parent);
+        ram_cg = new();
+    endfunction
+    
+    function void write(ram_transaction t);
+        txn = t;
+        ram_cg.sample();
+    endfunction
+    
+    function void report_phase(uvm_phase phase);
+        `uvm_info("COV", $sformatf("Coverage = %.2f%%", ram_cg.get_coverage()), UVM_LOW)
+    endfunction
+    
+endclass</pre>
+
+    <hr>
+
+    <!-- Section 6: Sequences -->
+    <div class="project-card" id="sequences">
+        <h3>6. Sequences & Tests</h3>
+        <p><strong>Key Learning:</strong> Virtual sequences, test scenarios</p>
+    </div>
+
+    <h4>Base Sequence</h4>
+    <pre>class ram_base_sequence extends uvm_sequence #(ram_transaction);
+    `uvm_object_utils(ram_base_sequence)
+    
+    function new(string name = "ram_base_sequence");
+        super.new(name);
+    endfunction
+    
+    // Write task
+    task write_mem(bit [9:0] addr, bit [31:0] data);
+        ram_transaction txn = ram_transaction::type_id::create("txn");
+        start_item(txn);
+        txn.en      = 1;
+        txn.wr_en   = 1;
+        txn.addr    = addr;
+        txn.wr_data = data;
+        finish_item(txn);
+    endtask
+    
+    // Read task
+    task read_mem(bit [9:0] addr);
+        ram_transaction txn = ram_transaction::type_id::create("txn");
+        start_item(txn);
+        txn.en      = 1;
+        txn.wr_en   = 0;
+        txn.addr    = addr;
+        finish_item(txn);
+    endtask
+    
+endclass</pre>
+
+    <h4>Write-Read Sequence</h4>
+    <pre>class write_read_sequence extends ram_base_sequence;
+    `uvm_object_utils(write_read_sequence)
+    
+    function new(string name = "write_read_sequence");
+        super.new(name);
+    endfunction
+    
+    task body();
+        `uvm_info("SEQ", "Starting Write-Read Sequence", UVM_LOW)
+        
+        // Write to addresses 0-9
+        for (int i = 0; i < 10; i++) begin
+            write_mem(i, i * 100);
+        end
+        
+        // Read back and verify
+        for (int i = 0; i < 10; i++) begin
+            read_mem(i);
+        end
+        
+        `uvm_info("SEQ", "Write-Read Sequence Complete", UVM_LOW)
+    endtask
+    
+endclass</pre>
+
+    <h4>Random Sequence</h4>
+    <pre>class random_sequence extends uvm_sequence #(ram_transaction);
+    `uvm_object_utils(random_sequence)
+    
+    rand int num_txns;
+    
+    constraint txn_count { num_txns inside {[50:200]}; }
+    
+    function new(string name = "random_sequence");
+        super.new(name);
+    endfunction
+    
+    task body();
+        ram_transaction txn;
+        
+        `uvm_info("SEQ", $sformatf("Running %0d random transactions", num_txns), UVM_LOW)
+        
+        repeat (num_txns) begin
+            txn = ram_transaction::type_id::create("txn");
+            start_item(txn);
+            if (!txn.randomize())
+                `uvm_error("SEQ", "Randomization failed")
+            finish_item(txn);
+        end
+    endtask
+    
+endclass</pre>
+
+    <h4>UVM Test</h4>
+    <pre>class ram_base_test extends uvm_test;
+    `uvm_component_utils(ram_base_test)
+    
+    ram_env env;
+    
+    function new(string name, uvm_component parent);
+        super.new(name, parent);
+    endfunction
+    
+    function void build_phase(uvm_phase phase);
+        super.build_phase(phase);
+        env = ram_env::type_id::create("env", this);
+    endfunction
+    
+    function void end_of_elaboration_phase(uvm_phase phase);
+        uvm_top.print_topology();
+    endfunction
+    
+endclass
+
+class write_read_test extends ram_base_test;
+    `uvm_component_utils(write_read_test)
+    
+    function new(string name, uvm_component parent);
+        super.new(name, parent);
+    endfunction
+    
+    task run_phase(uvm_phase phase);
+        write_read_sequence seq;
+        
+        phase.raise_objection(this);
+        
+        seq = write_read_sequence::type_id::create("seq");
+        seq.start(env.agent_a.sqr);
+        
+        #100;
+        phase.drop_objection(this);
+    endtask
+    
+endclass</pre>
+
+    <hr>
+
+    <!-- Section 7: Assertions -->
+    <div class="project-card" id="assertions">
+        <h3>7. SVA Assertions</h3>
+        <p><strong>Key Learning:</strong> Property checking, temporal assertions</p>
+    </div>
+
+    <pre>module ram_assertions (
+    input logic        clk,
+    input logic        en,
+    input logic        wr_en,
+    input logic [9:0]  addr,
+    input logic [31:0] wr_data,
+    input logic [31:0] rd_data
+);
+
+    // Property: Enable must be active for any operation
+    property p_enable_required;
+        @(posedge clk) wr_en |-> en;
+    endproperty
+    assert property (p_enable_required)
+        else $error("Write enable without enable!");
+
+    // Property: Address must be within valid range
+    property p_valid_address;
+        @(posedge clk) en |-> (addr < 1024);
+    endproperty
+    assert property (p_valid_address)
+        else $error("Invalid address: %0d", addr);
+
+    // Property: Read data stable after read
+    property p_read_stable;
+        @(posedge clk) (en && !wr_en) |=> $stable(rd_data);
+    endproperty
+    assert property (p_read_stable)
+        else $warning("Read data changed unexpectedly");
+
+    // Coverage: Track all address ranges accessed
+    cover property (@(posedge clk) en && addr < 256);
+    cover property (@(posedge clk) en && addr >= 256 && addr < 512);
+    cover property (@(posedge clk) en && addr >= 512 && addr < 768);
+    cover property (@(posedge clk) en && addr >= 768);
+
+endmodule</pre>
+
+    <hr>
+
+    <div class="uvm-box">
+        <h4>✅ UVM Best Practices</h4>
+        <ol>
+            <li>Use factory for all component/object creation</li>
+            <li>Always use virtual interfaces</li>
+            <li>Separate driver and monitor responsibilities</li>
+            <li>Use analysis ports for loose coupling</li>
+            <li>Implement functional coverage for closure</li>
+            <li>Use sequences for test stimulus abstraction</li>
+        </ol>
+    </div>
+
+    <div class="interview-box">
+        <h3>UVM Interview Questions</h3>
+        <ol>
+            <li><strong>What is the difference between uvm_object and uvm_component?</strong> - Components have hierarchy and phases; objects are transient data</li>
+            <li><strong>Explain TLM ports in UVM.</strong> - Transaction-level connections between components (put, get, analysis)</li>
+            <li><strong>Why use virtual sequences?</strong> - To coordinate multiple sequencers from a single sequence</li>
+            <li><strong>What is the UVM factory?</strong> - Central registry for type creation, enabling overrides</li>
+        </ol>
+    </div>
+
+    <h2>Next Steps</h2>
+    <p>Continue your VLSI learning journey with the complete blog series:</p>
+    <ul>
+        <li><strong>RAL</strong> - Register Abstraction Layer</li>
+        <li><strong>Advanced</strong> - Clock gating, low-power, CORDIC, timing (Coming Soon)</li>
+    </ul>
+
+    <div class="blog-nav">
+        <a href="communication.html">← Previous: Communication</a>
+        <a href="ral.html">Next: RAL →</a>
+    </div>
+
+    <div class="tags">
+        <span class="tag">#UVM</span>
+        <span class="tag">#SystemVerilog</span>
+        <span class="tag">#Verification</span>
+        <span class="tag">#Testbench</span>
+        <span class="tag">#Coverage</span>
+        <span class="tag">#Assertions</span>
+        <span class="tag">#VLSI</span>
+    </div>
+
+</div>
+
+<footer>
+    <p>Code examples are for educational purposes. Verify functionality before production use.</p>
+</footer>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    const firebaseConfig = {
+        databaseURL: "https://vlsi-blog-counter-default-rtdb.firebaseio.com/"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+    const counterRef = ref(database, 'blog04Views');
+
+    runTransaction(counterRef, (currentValue) => {
+        if (currentValue === null) return 1000;
+        return currentValue + 1;
+    }).then((result) => {
+        document.getElementById('visit-count').textContent = result.snapshot.val();
+    }).catch((error) => {
+        document.getElementById('visit-count').textContent = '1000+';
+    });
+</script>
+
+</body>
+</html>

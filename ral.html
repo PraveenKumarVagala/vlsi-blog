@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAL - Register Abstraction Layer for VLSI Verification</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.8;
+            color: #333;
+            background: #f8f9fa;
+        }
+        .nav-bar {
+            background: #0f3460;
+            padding: 10px 20px;
+            text-align: center;
+        }
+        .nav-bar a {
+            color: white;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 0.95em;
+        }
+        .nav-bar a:hover {
+            text-decoration: underline;
+        }
+        .nav-bar a.active {
+            font-weight: bold;
+            border-bottom: 2px solid #4fc3f7;
+        }
+        .header-banner {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: white;
+            padding: 60px 20px;
+            text-align: center;
+        }
+        .header-banner h1 {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        .header-banner .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        .header-banner .meta {
+            margin-top: 20px;
+            font-size: 0.95em;
+            opacity: 0.8;
+        }
+        .view-counter {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #1a1a2e;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 1em;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 1000;
+        }
+        .view-counter span {
+            font-weight: bold;
+            color: #4fc3f7;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #1a1a2e;
+            font-size: 1.8em;
+            margin: 40px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #0f3460;
+        }
+        h3 {
+            color: #16213e;
+            font-size: 1.4em;
+            margin: 30px 0 15px 0;
+        }
+        h4 {
+            color: #333;
+            font-size: 1.1em;
+            margin: 20px 0 10px 0;
+        }
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.85em;
+            line-height: 1.5;
+            margin: 20px 0;
+        }
+        code {
+            font-family: 'Consolas', 'Monaco', monospace;
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        pre code {
+            background: none;
+            padding: 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background: #0f3460;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        .toc {
+            background: #e8f4f8;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+        .toc h3 {
+            margin-top: 0;
+            color: #0f3460;
+        }
+        .toc ol {
+            margin-left: 25px;
+        }
+        .toc li {
+            margin: 8px 0;
+        }
+        .toc a {
+            color: #0f3460;
+            text-decoration: none;
+        }
+        .toc a:hover {
+            text-decoration: underline;
+        }
+        .project-card {
+            background: linear-gradient(to right, #f8f9fa, #e8f4f8);
+            border-left: 4px solid #0f3460;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        .project-card h3 {
+            margin-top: 0;
+            color: #0f3460;
+        }
+        .interview-box {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+        .interview-box h3 {
+            color: #856404;
+            margin-top: 0;
+        }
+        .ral-box {
+            background: #e7f3ff;
+            border: 1px solid #0066cc;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .ral-box h4 {
+            color: #004085;
+            margin-top: 0;
+        }
+        .tags {
+            margin-top: 30px;
+        }
+        .tag {
+            display: inline-block;
+            background: #e8f4f8;
+            color: #0f3460;
+            padding: 5px 12px;
+            border-radius: 20px;
+            margin: 5px;
+            font-size: 0.85em;
+        }
+        .diagram {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.85em;
+            overflow-x: auto;
+            white-space: pre;
+            margin: 20px 0;
+        }
+        .blog-nav {
+            display: flex;
+            justify-content: space-between;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .blog-nav a {
+            color: #0f3460;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .blog-nav a:hover {
+            text-decoration: underline;
+        }
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9em;
+        }
+        ul, ol {
+            margin-left: 25px;
+            margin-bottom: 15px;
+        }
+        li {
+            margin: 5px 0;
+        }
+        hr {
+            border: none;
+            border-top: 1px solid #ddd;
+            margin: 40px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="nav-bar">
+    <a href="index.html">01: Core RTL</a>
+    <a href="memory-fifo.html">02: Memory & FIFO</a>
+    <a href="communication.html">03: Communication</a>
+    <a href="uvm-testbench.html">04: UVM</a>
+    <a href="ral.html" class="active">05: RAL</a>
+</div>
+
+<div class="header-banner">
+    <h1>RAL - Register Abstraction Layer</h1>
+    <p class="subtitle">Complete Guide to UVM Register Model Implementation</p>
+    <p class="meta"><strong>Praveen Kumar Vagala</strong> | 20 min read</p>
+</div>
+
+<div class="view-counter">
+    <span id="visit-count">1000</span>
+</div>
+
+<div class="container">
+
+    <h2>Introduction</h2>
+    <p>
+        The Register Abstraction Layer (RAL) is a powerful feature in UVM that provides a standardized way to model, access, and verify hardware registers. It abstracts the physical register access mechanism, enabling reusable verification code across different bus interfaces and simplifying register verification.
+    </p>
+
+    <div class="toc">
+        <h3>Table of Contents</h3>
+        <ol>
+            <li><a href="#concepts">RAL Key Concepts</a></li>
+            <li><a href="#register-block">Register Block Implementation</a></li>
+            <li><a href="#adapter">Adapter & Predictor</a></li>
+            <li><a href="#sequences">RAL Sequences & Operations</a></li>
+            <li><a href="#coverage">Register Coverage</a></li>
+            <li><a href="#frontdoor">Frontdoor vs Backdoor Access</a></li>
+            <li><a href="#integration">Integration with Testbench</a></li>
+        </ol>
+    </div>
+
+    <hr>
+
+    <!-- Section 1: Concepts -->
+    <div class="project-card" id="concepts">
+        <h3>1. RAL Key Concepts</h3>
+        <p><strong>Key Learning:</strong> Register model hierarchy, field types, access policies</p>
+    </div>
+
+    <h4>RAL Hierarchy</h4>
+    <div class="diagram">+------------------------------------------+
+|           uvm_reg_block                  |
+|  +------------------------------------+  |
+|  |         uvm_reg_map                |  |
+|  |  +------------+  +------------+    |  |
+|  |  |  uvm_reg   |  |  uvm_reg   |    |  |
+|  |  | +-------+  |  | +-------+  |    |  |
+|  |  | |uvm_   |  |  | |uvm_   |  |    |  |
+|  |  | |reg_   |  |  | |reg_   |  |    |  |
+|  |  | |field  |  |  | |field  |  |    |  |
+|  |  | +-------+  |  | +-------+  |    |  |
+|  |  +------------+  +------------+    |  |
+|  +------------------------------------+  |
++------------------------------------------+</div>
+
+    <h4>Register Access Types</h4>
+    <table>
+        <tr>
+            <th>Access Type</th>
+            <th>Description</th>
+            <th>Read Behavior</th>
+            <th>Write Behavior</th>
+        </tr>
+        <tr>
+            <td>RW</td>
+            <td>Read-Write</td>
+            <td>Returns current value</td>
+            <td>Updates value</td>
+        </tr>
+        <tr>
+            <td>RO</td>
+            <td>Read-Only</td>
+            <td>Returns current value</td>
+            <td>No effect</td>
+        </tr>
+        <tr>
+            <td>WO</td>
+            <td>Write-Only</td>
+            <td>Returns 0</td>
+            <td>Updates value</td>
+        </tr>
+        <tr>
+            <td>W1C</td>
+            <td>Write-1-to-Clear</td>
+            <td>Returns current value</td>
+            <td>Clears bits written as 1</td>
+        </tr>
+        <tr>
+            <td>W1S</td>
+            <td>Write-1-to-Set</td>
+            <td>Returns current value</td>
+            <td>Sets bits written as 1</td>
+        </tr>
+        <tr>
+            <td>RC</td>
+            <td>Read-to-Clear</td>
+            <td>Returns and clears</td>
+            <td>No effect</td>
+        </tr>
+    </table>
+
+    <hr>
+
+    <!-- Section 2: Register Block -->
+    <div class="project-card" id="register-block">
+        <h3>2. Register Block Implementation</h3>
+        <p><strong>Key Learning:</strong> Register definition, field configuration, address mapping</p>
+    </div>
+
+    <h4>Example Register Specification</h4>
+    <p>We'll model a simple peripheral with the following registers:</p>
+    
+    <table>
+        <tr>
+            <th>Register</th>
+            <th>Offset</th>
+            <th>Fields</th>
+        </tr>
+        <tr>
+            <td>CTRL_REG</td>
+            <td>0x00</td>
+            <td>EN[0], MODE[2:1], IRQ_EN[3]</td>
+        </tr>
+        <tr>
+            <td>STATUS_REG</td>
+            <td>0x04</td>
+            <td>BUSY[0], ERROR[1], DONE[2] (RO)</td>
+        </tr>
+        <tr>
+            <td>DATA_REG</td>
+            <td>0x08</td>
+            <td>DATA[31:0]</td>
+        </tr>
+        <tr>
+            <td>IRQ_REG</td>
+            <td>0x0C</td>
+            <td>IRQ_STATUS[3:0] (W1C)</td>
+        </tr>
+    </table>
+
+    <h4>Field Definition</h4>
+    <pre>// Control Register Fields
+class ctrl_reg extends uvm_reg;
+    `uvm_object_utils(ctrl_reg)
+    
+    rand uvm_reg_field EN;
+    rand uvm_reg_field MODE;
+    rand uvm_reg_field IRQ_EN;
+    rand uvm_reg_field RESERVED;
+    
+    function new(string name = "ctrl_reg");
+        super.new(name, 32, UVM_NO_COVERAGE);
+    endfunction
+    
+    virtual function void build();
+        // Create fields
+        EN      = uvm_reg_field::type_id::create("EN");
+        MODE    = uvm_reg_field::type_id::create("MODE");
+        IRQ_EN  = uvm_reg_field::type_id::create("IRQ_EN");
+        RESERVED = uvm_reg_field::type_id::create("RESERVED");
+        
+        // Configure: parent, size, lsb_pos, access, volatile, reset, has_reset, is_rand
+        EN.configure     (this, 1,  0, "RW", 0, 1'b0, 1, 1, 0);
+        MODE.configure   (this, 2,  1, "RW", 0, 2'b0, 1, 1, 0);
+        IRQ_EN.configure (this, 1,  3, "RW", 0, 1'b0, 1, 1, 0);
+        RESERVED.configure(this, 28, 4, "RO", 0, 28'b0, 1, 0, 0);
+    endfunction
+    
+endclass</pre>
+
+    <h4>Status Register (Read-Only)</h4>
+    <pre>class status_reg extends uvm_reg;
+    `uvm_object_utils(status_reg)
+    
+    rand uvm_reg_field BUSY;
+    rand uvm_reg_field ERROR;
+    rand uvm_reg_field DONE;
+    
+    function new(string name = "status_reg");
+        super.new(name, 32, UVM_NO_COVERAGE);
+    endfunction
+    
+    virtual function void build();
+        BUSY  = uvm_reg_field::type_id::create("BUSY");
+        ERROR = uvm_reg_field::type_id::create("ERROR");
+        DONE  = uvm_reg_field::type_id::create("DONE");
+        
+        // Read-Only fields
+        BUSY.configure (this, 1, 0, "RO", 1, 1'b0, 1, 0, 0);
+        ERROR.configure(this, 1, 1, "RO", 1, 1'b0, 1, 0, 0);
+        DONE.configure (this, 1, 2, "RO", 1, 1'b0, 1, 0, 0);
+    endfunction
+    
+endclass</pre>
+
+    <h4>IRQ Register (Write-1-to-Clear)</h4>
+    <pre>class irq_reg extends uvm_reg;
+    `uvm_object_utils(irq_reg)
+    
+    rand uvm_reg_field IRQ_STATUS;
+    
+    function new(string name = "irq_reg");
+        super.new(name, 32, UVM_NO_COVERAGE);
+    endfunction
+    
+    virtual function void build();
+        IRQ_STATUS = uvm_reg_field::type_id::create("IRQ_STATUS");
+        
+        // Write-1-to-Clear field
+        IRQ_STATUS.configure(this, 4, 0, "W1C", 1, 4'b0, 1, 1, 0);
+    endfunction
+    
+endclass</pre>
+
+    <h4>Register Block</h4>
+    <pre>class peripheral_reg_block extends uvm_reg_block;
+    `uvm_object_utils(peripheral_reg_block)
+    
+    rand ctrl_reg   CTRL;
+    rand status_reg STATUS;
+    rand uvm_reg    DATA;
+    rand irq_reg    IRQ;
+    
+    uvm_reg_map reg_map;
+    
+    function new(string name = "peripheral_reg_block");
+        super.new(name, UVM_NO_COVERAGE);
+    endfunction
+    
+    virtual function void build();
+        // Create registers
+        CTRL   = ctrl_reg::type_id::create("CTRL");
+        STATUS = status_reg::type_id::create("STATUS");
+        DATA   = uvm_reg::type_id::create("DATA");
+        IRQ    = irq_reg::type_id::create("IRQ");
+        
+        // Build and configure
+        CTRL.configure(this, null, "");
+        CTRL.build();
+        
+        STATUS.configure(this, null, "");
+        STATUS.build();
+        
+        DATA.configure(this, null, "");
+        DATA.build();
+        
+        IRQ.configure(this, null, "");
+        IRQ.build();
+        
+        // Create address map
+        reg_map = create_map("reg_map", 'h0, 4, UVM_LITTLE_ENDIAN);
+        
+        // Add registers to map
+        reg_map.add_reg(CTRL,   'h00, "RW");
+        reg_map.add_reg(STATUS, 'h04, "RO");
+        reg_map.add_reg(DATA,   'h08, "RW");
+        reg_map.add_reg(IRQ,    'h0C, "RW");
+        
+        // Lock model
+        lock_model();
+    endfunction
+    
+endclass</pre>
+
+    <hr>
+
+    <!-- Section 3: Adapter -->
+    <div class="project-card" id="adapter">
+        <h3>3. Adapter & Predictor</h3>
+        <p><strong>Key Learning:</strong> Bus protocol abstraction, register prediction</p>
+    </div>
+
+    <h4>Register Adapter (APB Example)</h4>
+    <pre>class apb_reg_adapter extends uvm_reg_adapter;
+    `uvm_object_utils(apb_reg_adapter)
+    
+    function new(string name = "apb_reg_adapter");
+        super.new(name);
+        
+        // Support byte enables
+        supports_byte_enable = 1;
+        
+        // Provide responses
+        provides_responses = 1;
+    endfunction
+    
+    // Convert RAL transaction to bus transaction
+    virtual function uvm_sequence_item reg2bus(const ref uvm_reg_bus_op rw);
+        apb_transaction txn = apb_transaction::type_id::create("txn");
+        
+        txn.addr    = rw.addr;
+        txn.wr_en   = (rw.kind == UVM_WRITE);
+        txn.wr_data = rw.data;
+        
+        return txn;
+    endfunction
+    
+    // Convert bus transaction to RAL transaction
+    virtual function void bus2reg(uvm_sequence_item bus_item, 
+                                   ref uvm_reg_bus_op rw);
+        apb_transaction txn;
+        
+        if (!$cast(txn, bus_item)) begin
+            `uvm_fatal("CAST", "Failed to cast bus item")
+        end
+        
+        rw.addr   = txn.addr;
+        rw.kind   = txn.wr_en ? UVM_WRITE : UVM_READ;
+        rw.data   = txn.wr_en ? txn.wr_data : txn.rd_data;
+        rw.status = UVM_IS_OK;
+    endfunction
+    
+endclass</pre>
+
+    <h4>Register Predictor</h4>
+    <pre>class reg_predictor extends uvm_reg_predictor #(apb_transaction);
+    `uvm_component_utils(reg_predictor)
+    
+    function new(string name, uvm_component parent);
+        super.new(name, parent);
+    endfunction
+    
+endclass</pre>
+
+    <div class="ral-box">
+        <h4>💡 Adapter Key Points</h4>
+        <ul>
+            <li><code>reg2bus()</code> converts RAL operations to bus transactions</li>
+            <li><code>bus2reg()</code> converts bus responses back to RAL format</li>
+            <li>Predictor automatically updates register model based on observed transactions</li>
+            <li>Set <code>supports_byte_enable</code> for partial register access</li>
+        </ul>
+    </div>
+
+    <hr>
+
+    <!-- Section 4: Sequences -->
+    <div class="project-card" id="sequences">
+        <h3>4. RAL Sequences & Operations</h3>
+        <p><strong>Key Learning:</strong> Register access methods, built-in sequences</p>
+    </div>
+
+    <h4>Basic RAL Operations</h4>
+    <pre>class ral_basic_sequence extends uvm_sequence;
+    `uvm_object_utils(ral_basic_sequence)
+    
+    peripheral_reg_block reg_model;
+    
+    function new(string name = "ral_basic_sequence");
+        super.new(name);
+    endfunction
+    
+    task body();
+        uvm_status_e status;
+        uvm_reg_data_t data;
+        
+        // ========== WRITE Operations ==========
+        
+        // Method 1: write() - Full register write
+        reg_model.CTRL.write(status, 32'h0000_000F);
+        
+        // Method 2: set() + update() - Modify and sync
+        reg_model.CTRL.set(32'h0000_0005);
+        reg_model.CTRL.update(status);
+        
+        // Method 3: Field-level access
+        reg_model.CTRL.EN.set(1);
+        reg_model.CTRL.MODE.set(2'b11);
+        reg_model.CTRL.update(status);
+        
+        // ========== READ Operations ==========
+        
+        // Method 1: read() - Read from DUT
+        reg_model.STATUS.read(status, data);
+        `uvm_info("RAL", $sformatf("STATUS = 0x%0h", data), UVM_LOW)
+        
+        // Method 2: get() - Get model value (no DUT access)
+        data = reg_model.CTRL.get();
+        
+        // Method 3: mirror() - Read DUT and update model
+        reg_model.STATUS.mirror(status, UVM_CHECK);
+        
+        // ========== Compare/Check ==========
+        
+        // Compare model value with expected
+        if (reg_model.CTRL.EN.get() != 1) begin
+            `uvm_error("RAL", "EN field mismatch")
+        end
+        
+    endtask
+    
+endclass</pre>
+
+    <h4>Built-in RAL Sequences</h4>
+    <pre>class ral_builtin_tests extends uvm_sequence;
+    `uvm_object_utils(ral_builtin_tests)
+    
+    peripheral_reg_block reg_model;
+    
+    function new(string name = "ral_builtin_tests");
+        super.new(name);
+    endfunction
+    
+    task body();
+        uvm_reg_hw_reset_seq  reset_seq;
+        uvm_reg_bit_bash_seq  bit_bash_seq;
+        uvm_reg_access_seq    access_seq;
+        
+        // ===== Reset Test =====
+        // Verify all registers have correct reset values
+        reset_seq = uvm_reg_hw_reset_seq::type_id::create("reset_seq");
+        reset_seq.model = reg_model;
+        reset_seq.start(null);
+        
+        // ===== Bit Bash Test =====
+        // Write walking 1s and 0s to verify all bits work
+        bit_bash_seq = uvm_reg_bit_bash_seq::type_id::create("bit_bash_seq");
+        bit_bash_seq.model = reg_model;
+        bit_bash_seq.start(null);
+        
+        // ===== Access Test =====
+        // Verify register access types (RW, RO, etc.)
+        access_seq = uvm_reg_access_seq::type_id::create("access_seq");
+        access_seq.model = reg_model;
+        access_seq.start(null);
+        
+    endtask
+    
+endclass</pre>
+
+    <h4>Custom Register Sequence</h4>
+    <pre>class peripheral_config_sequence extends uvm_reg_sequence;
+    `uvm_object_utils(peripheral_config_sequence)
+    
+    peripheral_reg_block reg_model;
+    
+    // Configuration parameters
+    rand bit        enable;
+    rand bit [1:0]  mode;
+    rand bit        irq_enable;
+    
+    function new(string name = "peripheral_config_sequence");
+        super.new(name);
+    endfunction
+    
+    task body();
+        uvm_status_e status;
+        
+        `uvm_info("SEQ", $sformatf("Configuring: EN=%0b MODE=%0b IRQ_EN=%0b",
+                  enable, mode, irq_enable), UVM_LOW)
+        
+        // Configure control register
+        reg_model.CTRL.EN.set(enable);
+        reg_model.CTRL.MODE.set(mode);
+        reg_model.CTRL.IRQ_EN.set(irq_enable);
+        reg_model.CTRL.update(status);
+        
+        // Verify configuration
+        reg_model.CTRL.mirror(status, UVM_CHECK);
+        
+        // Wait for device to be ready
+        poll_for_ready();
+        
+    endtask
+    
+    task poll_for_ready();
+        uvm_status_e status;
+        int timeout = 100;
+        
+        repeat (timeout) begin
+            reg_model.STATUS.read(status, data);
+            if (!reg_model.STATUS.BUSY.get()) begin
+                `uvm_info("SEQ", "Device ready", UVM_LOW)
+                return;
+            end
+            #10;
+        end
+        
+        `uvm_error("SEQ", "Timeout waiting for device ready")
+    endtask
+    
+endclass</pre>
+
+    <hr>
+
+    <!-- Section 5: Coverage -->
+    <div class="project-card" id="coverage">
+        <h3>5. Register Coverage</h3>
+        <p><strong>Key Learning:</strong> Automatic coverage, custom coverage extensions</p>
+    </div>
+
+    <h4>Enable Built-in Coverage</h4>
+    <pre>class peripheral_reg_block extends uvm_reg_block;
+    `uvm_object_utils(peripheral_reg_block)
+    
+    // ... register declarations ...
+    
+    function new(string name = "peripheral_reg_block");
+        // Enable coverage
+        super.new(name, build_coverage(UVM_CVR_REG_BITS | 
+                                       UVM_CVR_ADDR_MAP | 
+                                       UVM_CVR_FIELD_VALS));
+    endfunction
+    
+    virtual function void build();
+        // ... build registers ...
+        
+        // Sample coverage on register access
+        CTRL.set_coverage(UVM_CVR_REG_BITS);
+        STATUS.set_coverage(UVM_CVR_REG_BITS);
+        
+    endfunction
+    
+endclass</pre>
+
+    <h4>Custom Field Coverage</h4>
+    <pre>class ctrl_reg extends uvm_reg;
+    `uvm_object_utils(ctrl_reg)
+    
+    rand uvm_reg_field EN;
+    rand uvm_reg_field MODE;
+    rand uvm_reg_field IRQ_EN;
+    
+    // Custom covergroup
+    covergroup ctrl_cov;
+        en_cp: coverpoint EN.value {
+            bins disabled = {0};
+            bins enabled  = {1};
+        }
+        
+        mode_cp: coverpoint MODE.value {
+            bins mode_0 = {0};
+            bins mode_1 = {1};
+            bins mode_2 = {2};
+            bins mode_3 = {3};
+        }
+        
+        irq_cp: coverpoint IRQ_EN.value {
+            bins irq_disabled = {0};
+            bins irq_enabled  = {1};
+        }
+        
+        // Cross coverage
+        mode_x_en: cross en_cp, mode_cp;
+        
+    endgroup
+    
+    function new(string name = "ctrl_reg");
+        super.new(name, 32, UVM_CVR_REG_BITS);
+        ctrl_cov = new();
+    endfunction
+    
+    // Override sample method
+    virtual function void sample(uvm_reg_data_t data,
+                                  uvm_reg_data_t byte_en,
+                                  bit is_read,
+                                  uvm_reg_map map);
+        super.sample(data, byte_en, is_read, map);
+        ctrl_cov.sample();
+    endfunction
+    
+endclass</pre>
+
+    <hr>
+
+    <!-- Section 6: Frontdoor vs Backdoor -->
+    <div class="project-card" id="frontdoor">
+        <h3>6. Frontdoor vs Backdoor Access</h3>
+        <p><strong>Key Learning:</strong> Access methods, performance optimization</p>
+    </div>
+
+    <h4>Access Types Comparison</h4>
+    <table>
+        <tr>
+            <th>Aspect</th>
+            <th>Frontdoor</th>
+            <th>Backdoor</th>
+        </tr>
+        <tr>
+            <td>Mechanism</td>
+            <td>Via bus interface</td>
+            <td>Direct hierarchy access</td>
+        </tr>
+        <tr>
+            <td>Timing</td>
+            <td>Real bus cycles</td>
+            <td>Zero time</td>
+        </tr>
+        <tr>
+            <td>Realism</td>
+            <td>Full protocol</td>
+            <td>No protocol</td>
+        </tr>
+        <tr>
+            <td>Use Case</td>
+            <td>Functional verification</td>
+            <td>Initialization, debug</td>
+        </tr>
+    </table>
+
+    <h4>Backdoor Access Configuration</h4>
+    <pre>class peripheral_reg_block extends uvm_reg_block;
+    
+    virtual function void build();
+        // ... register creation ...
+        
+        // Configure backdoor paths (HDL hierarchy)
+        CTRL.add_hdl_path_slice("ctrl_reg", 0, 32);
+        STATUS.add_hdl_path_slice("status_reg", 0, 32);
+        DATA.add_hdl_path_slice("data_reg", 0, 32);
+        IRQ.add_hdl_path_slice("irq_reg", 0, 32);
+        
+        // Set root path
+        add_hdl_path("tb.dut.reg_file");
+        
+    endfunction
+    
+endclass</pre>
+
+    <h4>Using Backdoor Access</h4>
+    <pre>class backdoor_test_sequence extends uvm_sequence;
+    `uvm_object_utils(backdoor_test_sequence)
+    
+    peripheral_reg_block reg_model;
+    
+    task body();
+        uvm_status_e status;
+        uvm_reg_data_t data;
+        
+        // ===== Backdoor Write =====
+        // Initialize registers quickly (no bus cycles)
+        reg_model.CTRL.poke(status, 32'h0000_000F);
+        
+        // ===== Backdoor Read =====
+        // Read directly from RTL
+        reg_model.STATUS.peek(status, data);
+        `uvm_info("BD", $sformatf("STATUS = 0x%0h", data), UVM_LOW)
+        
+        // ===== Mixed Access =====
+        // Use backdoor for init, frontdoor for verification
+        reg_model.DATA.poke(status, 32'hDEAD_BEEF);  // Fast init
+        reg_model.DATA.read(status, data);           // Verify via bus
+        
+        if (data != 32'hDEAD_BEEF) begin
+            `uvm_error("BD", "Data mismatch after backdoor write")
+        end
+        
+    endtask
+    
+endclass</pre>
+
+    <hr>
+
+    <!-- Section 7: Integration -->
+    <div class="project-card" id="integration">
+        <h3>7. Integration with Testbench</h3>
+        <p><strong>Key Learning:</strong> Environment setup, model connection</p>
+    </div>
+
+    <h4>Environment Integration</h4>
+    <pre>class peripheral_env extends uvm_env;
+    `uvm_component_utils(peripheral_env)
+    
+    apb_agent           agent;
+    peripheral_reg_block reg_model;
+    apb_reg_adapter     adapter;
+    reg_predictor       predictor;
+    
+    function new(string name, uvm_component parent);
+        super.new(name, parent);
+    endfunction
+    
+    function void build_phase(uvm_phase phase);
+        super.build_phase(phase);
+        
+        // Create agent
+        agent = apb_agent::type_id::create("agent", this);
+        
+        // Create register model
+        reg_model = peripheral_reg_block::type_id::create("reg_model");
+        reg_model.build();
+        
+        // Create adapter
+        adapter = apb_reg_adapter::type_id::create("adapter");
+        
+        // Create predictor
+        predictor = reg_predictor::type_id::create("predictor", this);
+        
+    endfunction
+    
+    function void connect_phase(uvm_phase phase);
+        super.connect_phase(phase);
+        
+        // Connect register model to sequencer via adapter
+        reg_model.reg_map.set_sequencer(agent.sqr, adapter);
+        
+        // Enable auto-prediction (alternative to explicit predictor)
+        reg_model.reg_map.set_auto_predict(1);
+        
+        // OR use explicit predictor
+        // predictor.map = reg_model.reg_map;
+        // predictor.adapter = adapter;
+        // agent.mon.ap.connect(predictor.bus_in);
+        
+    endfunction
+    
+endclass</pre>
+
+    <h4>Complete Test Example</h4>
+    <pre>class ral_test extends uvm_test;
+    `uvm_component_utils(ral_test)
+    
+    peripheral_env env;
+    
+    function new(string name, uvm_component parent);
+        super.new(name, parent);
+    endfunction
+    
+    function void build_phase(uvm_phase phase);
+        super.build_phase(phase);
+        env = peripheral_env::type_id::create("env", this);
+    endfunction
+    
+    task run_phase(uvm_phase phase);
+        peripheral_config_sequence config_seq;
+        ral_builtin_tests builtin_seq;
+        
+        phase.raise_objection(this);
+        
+        // Run configuration sequence
+        config_seq = peripheral_config_sequence::type_id::create("config_seq");
+        config_seq.reg_model = env.reg_model;
+        config_seq.enable = 1;
+        config_seq.mode = 2'b10;
+        config_seq.irq_enable = 1;
+        config_seq.start(null);
+        
+        // Run built-in tests
+        builtin_seq = ral_builtin_tests::type_id::create("builtin_seq");
+        builtin_seq.reg_model = env.reg_model;
+        builtin_seq.start(null);
+        
+        #1000;
+        phase.drop_objection(this);
+    endtask
+    
+endclass</pre>
+
+    <hr>
+
+    <div class="ral-box">
+        <h4>✅ RAL Best Practices</h4>
+        <ol>
+            <li>Generate register model from IP-XACT or RALF specifications</li>
+            <li>Use auto-prediction for simple testbenches</li>
+            <li>Use explicit predictor when monitoring is critical</li>
+            <li>Use backdoor for initialization, frontdoor for verification</li>
+            <li>Enable built-in coverage for comprehensive register testing</li>
+            <li>Run built-in sequences (reset, bit-bash, access) early</li>
+        </ol>
+    </div>
+
+    <div class="interview-box">
+        <h3>RAL Interview Questions</h3>
+        <ol>
+            <li><strong>What is the difference between set/get and write/read?</strong> - set/get modify model only; write/read access DUT</li>
+            <li><strong>Explain the role of the adapter.</strong> - Converts between abstract register operations and bus transactions</li>
+            <li><strong>When would you use backdoor access?</strong> - Fast initialization, accessing inaccessible registers, debug</li>
+            <li><strong>What is mirror() vs read()?</strong> - mirror() can optionally check; both update model</li>
+            <li><strong>How does the predictor work?</strong> - Observes bus transactions and updates register model accordingly</li>
+        </ol>
+    </div>
+
+    <h2>Next Steps</h2>
+    <p>Continue your VLSI learning journey with the complete blog series:</p>
+    <ul>
+        <li><strong>Advanced</strong> - Clock gating, low-power, CORDIC, timing (Coming Soon)</li>
+    </ul>
+    <p>Or revisit previous chapters to reinforce your learning!</p>
+
+    <div class="blog-nav">
+        <a href="uvm-testbench.html">← Previous: UVM Testbench</a>
+        <a href="index.html">Back to 01 →</a>
+    </div>
+
+    <div class="tags">
+        <span class="tag">#RAL</span>
+        <span class="tag">#UVM</span>
+        <span class="tag">#RegisterModel</span>
+        <span class="tag">#Verification</span>
+        <span class="tag">#SystemVerilog</span>
+        <span class="tag">#Coverage</span>
+        <span class="tag">#VLSI</span>
+    </div>
+
+</div>
+
+<footer>
+    <p>Code examples are for educational purposes. Verify functionality before production use.</p>
+</footer>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    const firebaseConfig = {
+        databaseURL: "https://vlsi-blog-counter-default-rtdb.firebaseio.com/"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+    const counterRef = ref(database, 'blog05Views');
+
+    runTransaction(counterRef, (currentValue) => {
+        if (currentValue === null) return 1000;
+        return currentValue + 1;
+    }).then((result) => {
+        document.getElementById('visit-count').textContent = result.snapshot.val();
+    }).catch((error) => {
+        document.getElementById('visit-count').textContent = '1000+';
+    });
+</script>
+
+</body>
+</html>
